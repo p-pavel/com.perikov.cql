@@ -1,24 +1,26 @@
-
-
-val `cql-grammar` = project
+lazy val `cql-grammar` = project
   .in(file("modules/grammar"))
 
-val `cql-grammar-verified` = project
-  .in(file("modules/grammar-verified"))
+lazy val `cql-grammar-validated` = project
+  .in(file("modules/grammar-validated"))
   .dependsOn(`cql-grammar`)
+  .settings(
+    libraryDependencies += "org.typelevel" %% "cats-core" % "2.12.0"
+  )
 
-val `cql-datastax` = project
+lazy val tests = project
+  .in(file("modules/tests"))
+  .dependsOn(`cql-grammar`, `cql-grammar-validated`, `cql-datastax`, `cql-compiletime`)
+
+lazy val `cql-datastax` = project
   .in(file("modules/datastax"))
   .dependsOn(`cql-grammar`)
 
-val `cql-compiletime` = project
+lazy val `cql-compiletime` = project
   .in(file("modules/compiletime"))
-  .dependsOn(`cql-grammar`, `cql-grammar-verified`)
+  .dependsOn(`cql-grammar`, `cql-grammar-validated`)
 
-val `cql-tests` = project
-  .in(file("modules/tests"))
-  .dependsOn(`cql-grammar`, `cql-grammar-verified`, `cql-datastax`, `cql-compiletime`)
 
-val cql = project
+lazy val cql = project
   .in(file("."))
-  .aggregate(`cql-grammar`, `cql-grammar-verified`, `cql-datastax`, `cql-compiletime`)
+  .aggregate(`cql-grammar`, `cql-grammar-validated`, `cql-datastax`, `cql-compiletime`, tests)
