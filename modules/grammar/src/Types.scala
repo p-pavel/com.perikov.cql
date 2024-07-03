@@ -42,7 +42,7 @@ trait Collections extends NativeTypes:
   def SET[V](value: Type[V]): Type[Set[V]]
 
 trait Tuples extends NativeTypes:
-  def TUPLE[T <: Tuple](values: Tuple.Map[T, Type]): T
+  def TUPLE[T <: Tuple](values: Tuple.Map[T, Type]): Type[T]
 
 /** @todo specify */
 trait UDTs extends NativeTypes

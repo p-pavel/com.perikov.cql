@@ -26,6 +26,14 @@ Then we provide a couple of implementations:
 - "compiletime" uses metarprogramming facilities to check schema and statement descriptions in compile time
 - "datastax" provides concrete implementation for working with statements over Datastax driver
 
+## General design approach
+
+We start with "Grammar" of the problem at hanf. This is a set of types and typeclasses that describe the problem domain.
+
+Then we provide a couple of implementations. The first one is "grammar-validated" which wraps existing implementation of `Grammar` with cats' `Validated` thus allowing sharing of the validation logic.
+
+As the last step we provide a compile-time API based on "Validated" version to build literal expressions with errors checked at compile time.
+
 ## Future work
 
 - I plan to implement compiletime extraction of schema from running Cassandra instance for producing binary artifact

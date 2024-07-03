@@ -14,7 +14,7 @@ object ProjectPlugin extends AutoPlugin {
       "-deprecation",
       "-feature",
       "-unchecked",
-      "-Xlint",
+      "-Wunused:all",
       "-Xsource:future-migration",
       "-Yexplicit-nulls",
       "-Ykind-projector",

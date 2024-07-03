@@ -1,18 +1,34 @@
 package com.perikov.cql.grammar
 
-
-trait DMLStatements extends Identifiers, DDLStatements:
+trait DMLStatements extends Identifiers, Schema:
   type Statement
+  type TableOptions
+  def defaultTableOptions: TableOptions
+  type KeyspaceOptions
+  def defaultKeyspaceOptions: KeyspaceOptions
+
+
+  trait KeyspaceStatements:
+    def create(
+        ifNotExists: Boolean,
+        options: KeyspaceOptions = defaultKeyspaceOptions): Statement
+  end KeyspaceStatements
 
   trait TableStatements:
     type SelectItem
-    type Selector  <: SelectItem
+    type Selector <: SelectItem
     type ColumnName <: Selector
 
     type SelectClause
 
     extension (sel: Selector) def as(id: Identifier): SelectItem
 
+    def create(
+        ifNotExists: Boolean = false,
+        options: TableOptions = defaultTableOptions
+    ): Statement
+
+    def drop(ifExists: Boolean = false): Statement
 
     trait Clause:
       type Self
@@ -41,18 +57,16 @@ trait DMLStatements extends Identifiers, DDLStatements:
         allowFiltering: Boolean = false
     ): Statement
 
-    //TODO: delete, update, insert, batch
+    // TODO: delete, update, insert, batch
 
   end TableStatements
 
-  extension (t: Table)
-    def statement: TableStatements
-
+  extension (t: Table) def statement: TableStatements
 
   type Limit
+
   def noLimit: Limit
   def limit(n: Int): Limit
   def limit(bindName: Identifier): Limit
-
 
 end DMLStatements

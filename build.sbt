@@ -15,11 +15,13 @@ lazy val tests = project
 lazy val `cql-datastax` = project
   .in(file("modules/datastax"))
   .dependsOn(`cql-grammar`)
+  .settings(
+    libraryDependencies += "org.apache.cassandra" % "java-driver-core" % "4.18.1"
+  )
 
 lazy val `cql-compiletime` = project
   .in(file("modules/compiletime"))
   .dependsOn(`cql-grammar`, `cql-grammar-validated`)
-
 
 lazy val cql = project
   .in(file("."))
