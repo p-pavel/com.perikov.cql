@@ -142,11 +142,60 @@ As a side note: Knuth considered attribute grammars as a general computational m
 
 ## Union-product types
 
-- great way to model the problem, including handling different cases
-- Scala traits as union-product types
-- Flexibility of Scala traits and subtyping
-- We need something more to be more precise as with context-free grammars
-- We need dependent types, more precisely Σ-types
+Let's now take another look on the Scala's traits.
+
+For now we had single "rule" for every non-terminal, but this shouldn't be always the case. 
+Let's thing what we can do with `Identifier` type.
+
+```scala
+trait Identifiers:
+  type Identifier
+  def quotedIdentifier(s: String): Identifier
+  def unqoutedIdentifier(s: String): Identifier
+end Identifiers
+```
+
+(CQL's quoted and unqouted identifiers actuall have different behavior: the latter being case-insensitive, and some of them being reserved words)
+
+We can look at a trait as a union of products type, methods beeing "variants" and their
+arguments forming a product.
+
+Probably `Identifiers` are not the best example (each product have only one type), but you got
+the idea.
+
+This approach is much more flexible compared to `enum` types due to the flexibility of Scala's traits, that can be inherited, composed (and `export`ed) etc, so we can easily build complex types from "components".
+
+Union and product types are great tools to model not only data structure but also computation structure: the cases that can occur during execution of your program.
+
+Methods define branches of your program: 
+
+```scala
+trait MyExecutionBranches:
+  type Result
+  type Balance <: Result
+  def processDeposit(amount: BigDecimal): Result
+  def processWithdrawal(amount: BigDecimal): Result
+  def checkBalance: Balance
+  def unknownRequest: Result
+
+class Program(val use: (b: MyExecutionBranches) ?=> b.Result ) extends AnyVal
+```
+
+`Program` beeing a tagless-final value.
+
+I actually did some research on macros and annotations to annotate methods and automatically generate dispatchers to provided trait and pretty printers, but this deserves separate paper.
+
+Looking at the situation at this perspective, we can notice the same problem as with
+grammar-based approach: we need more constraints.
+
+Product types (methods) can't express something more strict that Cartesian products, so what
+what can we do? [Σ types](https://en.wikipedia.org/wiki/Dependent_type) to the rescue.
+
+Classically Σ-type is a combination of value `a` of type `A`, the function `Prop` from `A` to the set of types and the value `Prop(a)` beeing the proof that the proposition is true for `a`.
+
+Sorry for impresision, the formal definition can be found in the link above.
+
+We can generalize this idea. We'll do it in the next section.
 
 ## Extending our specification
 

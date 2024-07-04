@@ -36,23 +36,25 @@ end Types
 
 trait Identifiers:
   type Identifier
-  def identifier(s: String): Identifier
+  def quotedIdentifier(s: String): Identifier
+  def unqoutedIdentifier(s: String): Identifier
+end Identifiers
 
 trait Grammar extends Schema, Types, Identifiers
 
-def example1(using g: Grammar): g.Table =
-  import g.*
-  table(
-    keyspace(identifier("my_keyspace")),
-    name = identifier("my_table"),
-    columns = columndDefs(
-      columnDef(identifier("id"), "uuid"),
-      columnDef(identifier("name"), "text"),
-      columnDef(identifier("age"), "int")
-    ),
-    primaryKey(
-      partitionKey(identifier("id")),
-      identifier("name"),
-      identifier("age")
-    )
-  )
+// def example1(using g: Grammar): g.Table =
+//   import g.*
+//   table(
+//     keyspace(identifier("my_keyspace")),
+//     name = identifier("my_table"),
+//     columns = columndDefs(
+//       columnDef(identifier("id"), "uuid"),
+//       columnDef(identifier("name"), "text"),
+//       columnDef(identifier("age"), "int")
+//     ),
+//     primaryKey(
+//       partitionKey(identifier("id")),
+//       identifier("name"),
+//       identifier("age")
+//     )
+//   )
