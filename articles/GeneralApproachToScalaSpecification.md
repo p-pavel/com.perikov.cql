@@ -331,8 +331,8 @@ I personally have the following plans in this area:
 - provide the implementation based on datastax driver
 - improve and publish small macro library to extract information from traits and generate
 some trivial implementations (like pretty printers, dispatchers etc). Some code fragments (not 
-put into the project yet can be found at [](https://github.com/p-pavel/osgi-scala-maven/tree/main/modelling/macros/src/main/scala/com/perikov/cassandra/macros), along with some experiments on
-describing Cassandra native protocols at[](https://github.com/p-pavel/osgi-scala-maven/tree/main/modelling/cassandra/src/main/scala/com/perikov/cassandra/protocol/grammar)
+put into the project yet can be found [here](https://github.com/p-pavel/osgi-scala-maven/tree/main/modelling/macros/src/main/scala/com/perikov/cassandra/macros), along with [some experiments on
+describing Cassandra native protocols](https://github.com/p-pavel/osgi-scala-maven/tree/main/modelling/cassandra/src/main/scala/com/perikov/cassandra/protocol/grammar)
 - capture some Cassandra usage patterns (like implementing caches...)
 - captue some general design and architecture patterns in modern software development
 that are repeated over and over again "by simple textual description". I'm talking things like
