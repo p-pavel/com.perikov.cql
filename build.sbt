@@ -19,10 +19,20 @@ lazy val `cql-datastax` = project
     libraryDependencies += "org.apache.cassandra" % "java-driver-core" % "4.18.1"
   )
 
+lazy val `specs-article` = project
+  .in(file("modules/specs-article"))
+
 lazy val `cql-compiletime` = project
   .in(file("modules/compiletime"))
   .dependsOn(`cql-grammar`, `cql-grammar-validated`)
 
 lazy val cql = project
   .in(file("."))
-  .aggregate(`cql-grammar`, `cql-grammar-validated`, `cql-datastax`, `cql-compiletime`, tests)
+  .aggregate(
+    `cql-grammar`,
+    `cql-grammar-validated`,
+    `cql-datastax`,
+    `cql-compiletime`,
+    `specs-article`,
+    tests
+  )
