@@ -1,5 +1,7 @@
 # CQL support for Scala 3
 
+*There's a small and messy article on the general topic of using Scala as specification language at [](articles/GeneralApproachToScalaSpecification.md)*
+
 CQL stands for Cassandra Query Language. It is a SQL-like language for working with Cassandra database.
 
 This project is intended to provide support for working with CQL in Scala 3.
