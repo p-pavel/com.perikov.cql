@@ -10,7 +10,7 @@ business software design patterns.
 
 At that time I just played with the idea (reinventing tagless-final in the process :)) and didn't have any practical use for it, on of the reasons Agda being a bit esoteric beast.  
 
-Over the years, as I continued working in software development and with the emergence of Scala as a general-purpose language that is expressive enough to be used as a specification language, I became increasingly obsessed with the idea.
+Over the years, as I continued working in software development and with the emergence of Scala as a general-purpose language expressive enough to be used as a specification language, I became increasingly obsessed with the idea. Improved syntax and metaprogramming capabilities of Scala 3 made it a perfect candidate for the task.
 
 When looking at what happens in "business software" projects, such as reinventing the wheel repeatedly, oftenl lack of supported documentation, lack of knowledge sharing, and absence of formal specifications, I believe that using Scala as a specification, documentation and 
 implementation language can potentially provide significant benefits.
@@ -300,7 +300,7 @@ Lots, actually. In the future I hope to:
 - provide the complete CQL spec as an example along with compile-time checked schema definition
 - talk about the role of tagless-final and interplay with specs described above
 - talk more about the role of type bounds and their relation to validators
-- phantom types. Database schema doesn't need to present in runtime at all and can be completely put into typelevel.
+- **phantom types**. Database schema doesn't need to present in runtime at all and can be completely put into typelevel.
 
 ## Conclusion
 
@@ -330,11 +330,15 @@ I personally have the following plans in this area:
 - provide specification for CQL queries and type-level CQL schema with compile-time validation
 - provide the implementation based on datastax driver
 - improve and publish small macro library to extract information from traits and generate
-some trivial implementations (like pretty printers, dispatchers etc)
+some trivial implementations (like pretty printers, dispatchers etc). Some code fragments (not 
+put into the project yet can be found at [](https://github.com/p-pavel/osgi-scala-maven/tree/main/modelling/macros/src/main/scala/com/perikov/cassandra/macros), along with some experiments on
+describing Cassandra native protocols at[](https://github.com/p-pavel/osgi-scala-maven/tree/main/modelling/cassandra/src/main/scala/com/perikov/cassandra/protocol/grammar)
 - capture some Cassandra usage patterns (like implementing caches...)
 - captue some general design and architecture patterns in modern software development
 that are repeated over and over again "by simple textual description". I'm talking things like
 event sourcing, CQRS, etc.
+
+If somebody interested in this area, I would be happy to collaborate, please contact me `pavel@perikov.com`
 
 My other areas of interest include OSGi and Scala, trying to do something with microservices
 catastrophe, provide tool to automate all aspects of targeting OSGi containers for deployment,
