@@ -331,8 +331,8 @@ I personally have the following plans in this area:
 - provide the implementation based on datastax driver
 - improve and publish small macro library to extract information from traits and generate
 some trivial implementations (like pretty printers, dispatchers etc)
-- pindown some Cassandra usage patterns (like implementing caches...)
-- pindown some general design and architecture patterns in modern software development
+- capture some Cassandra usage patterns (like implementing caches...)
+- captue some general design and architecture patterns in modern software development
 that are repeated over and over again "by simple textual description". I'm talking things like
 event sourcing, CQRS, etc.
 
