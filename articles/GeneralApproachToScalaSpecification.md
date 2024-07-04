@@ -8,21 +8,24 @@ I started thinking about the idea of formalizing the use of programming language
 the possibilities for providing specs not for traditional "mathematical" things but for 
 business software design patterns.
 
-At that time, I had some general ideas but nothing concrete came out of it.
+At that time I just played with the idea (reinventing tagless-final in the process :)) and didn't have any practical use for it, on of the reasons Agda being a bit esoteric beast.  
 
-Over the years, as I continued working and with the emergence of Scala as a general-purpose language that is expressive enough to be used as a specification language, I became increasingly obsessed with the idea.
+Over the years, as I continued working in software development and with the emergence of Scala as a general-purpose language that is expressive enough to be used as a specification language, I became increasingly obsessed with the idea.
 
-When looking at what happens in business software projects, such as reinventing the wheel repeatedly, lack of documentation, lack of knowledge sharing, and absence of formal specifications, I believe that using Scala as a specification language can potentially provide significant benefits.
+When looking at what happens in "business software" projects, such as reinventing the wheel repeatedly, oftenl lack of supported documentation, lack of knowledge sharing, and absence of formal specifications, I believe that using Scala as a specification, documentation and 
+implementation language can potentially provide significant benefits.
 
 Here are some quick philosophical notes on the topic, which I plan to expand upon.
 
 ## Grammar-like specification
 
-People keep telling me that Scala is too complex and that a simple BNF will be enough, or even better, natural language (brrr).
+People keep telling me that Scala is too complex and that a simple BNF will be enough.
+
+Or that natural language is the best for specs (everyone can understand it, right?).
 
 Or that specifications are of no use at all.
 
-Let's see how complex it is to specify something in Scala.
+Let's see how complex it is to specify something in Scala compared to BNF that is often mentioned.
 
 Please recall that BNF is essentially a notation for context-free grammars.
 
@@ -44,7 +47,7 @@ trait Schema:
   ): Table
   ```
 
-We're just writing down our knowledge on what table definition is (let's focus on tables for now, we will need them to build queries at some point in the future).
+We're writing down our knowledge on what table definition is (let's focus on tables for now, we will need them to build queries at some point in the future).
 
 So, let's continue our "recursive descent", defining some of the abstract types we used and adding more abstract types as we go:
 
@@ -73,7 +76,11 @@ trait Schema:
   def primaryKey(partitionKey: PartitionKey, clusteringColumns: Identifier*): PrimaryKey
 ```
 
-Does it look too complex to you compared to BNF? Does it communicate the idea? I think it does. Being formally checked, refinable and implementable code as a bonus.
+Does it look too complex compared to BNF? I think now.
+
+Does it communicate the idea? I think it does. 
+
+Being formally checked, refinable and implementable code as a bonus.
 
 If we copy-paste some original documentatin to scaladoc, we could have a complete source of information.
 
@@ -83,7 +90,7 @@ We have non-terminals (types that are used as return types) and non-terminals (t
 
 Non-terminals here are `Identifier` and `Type`, complex enough concepts on their own, presumed starting non-teminal is `Table`.
 
-Our "grammars" are composable, terminals for one part beeing non-terminals for another.
+Our "grammars" are composable, terminals for one part being non-terminals for another.
 
 For example, we can imagine something like `Type` grammar: 
 
@@ -92,6 +99,7 @@ trait Types:
   type Type >: "text" | "int" | "uuid" // ...
   def map(k: Type, v: Type): Type
   def set(v: Type): Type
+  // ... 
 end Types
 
 trait Identifiers:
@@ -166,7 +174,7 @@ end Identifiers
 
 (CQL's quoted and unqouted identifiers actually have different behavior: the latter being case-insensitive, and some of them being reserved words)
 
-We can look at a trait as a union of products type, methods beeing "variants" and their
+We can look at a trait as a union of products type, methods being "variants" and their
 arguments forming a product.
 
 Probably `Identifiers` are not the best example (each product have only one type), but you got
@@ -176,7 +184,7 @@ This approach is much more flexible compared to `enum` types due to the flexibil
 
 Union and product types are great tools to model not only data structure but also computation structure: the cases that can occur during execution of your program.
 
-Methods define branches of your program: 
+Methods define branches of your program:
 
 ```scala
 trait MyExecutionBranches:
@@ -190,9 +198,9 @@ trait MyExecutionBranches:
 class Program(val use: (b: MyExecutionBranches) ?=> b.Result ) extends AnyVal
 ```
 
-`Program` beeing a tagless-final value.
+`Program` being a tagless-final value.
 
-I also did some experiments with macros and annotations to annotate methods and automatically generate dispatchers, pretty printers etc using macro reflection, but this deserves separate paper.
+I also did some experiments with macros and annotations to annotate methods and automatically generate dispatchers, pretty printers and other mechanical implementations using macro reflection, but this deserves a separate paper.
 
 Looking at the situation in this perspective, we can notice the same problem as with
 grammar-based approach: we need more constraints.
@@ -200,7 +208,7 @@ grammar-based approach: we need more constraints.
 Product types (methods) can't express something more strict that Cartesian products, so what
 what can we do? [Σ types](https://en.wikipedia.org/wiki/Dependent_type) to the rescue.
 
-Classically Σ-type is a combination of value `a` of type `A`, the function `Prop` from `A` to the set of types and the value `Prop(a)` beeing the proof that the proposition is true for `a`.
+Classically Σ-type is a combination of value `a` of type `A`, the function `Prop` from `A` to the set of types and the value `Prop(a)` being the proof that the proposition is true for `a`.
 
 The formal definition can be found in the link above.
 
@@ -277,7 +285,6 @@ def example3(c: CompiletimeIdentifiers) =
   val i2 = identifier("1a") // fails in runtime
 ```
 
-
 ## Talk abount refinement
 
 The flexibility of traits opens many possibilities for refining both the specification
@@ -293,25 +300,28 @@ Lots, actually. In the future I hope to:
 - provide the complete CQL spec as an example along with compile-time checked schema definition
 - talk about the role of tagless-final and interplay with specs described above
 - talk more about the role of type bounds and their relation to validators
+- phantom types. Database schema doesn't need to present in runtime at all and can be completely put into typelevel.
 
 ## Conclusion
 
-From my experience lots of work made in software development leaves no traces that can be represented as formal artefacts. There're also lots of duplication of essentially
-the same functionality in different projects, that can be reused if proper abstractions
+From my experience lots of work made in software development leaves no traces that can be represented as formal artefacts independent of particular implementation.
+
+There're also lots of duplication of essentially
+the same functionality in different projects, that could be reused if proper abstractions
 were available.
 
-I believe using Scala as your specification language in the process of API design can
+I believe that using Scala as your specification language, not just implementation language, can
 potentially bring significant benefits:
 
 - consise, complete, compiler checkable documentation
 - knowledge and practices sharing
 - less errors in implementation
+- potential to leverage term deriving
 - ability to delegate the work on particular parts of both "specs/interafaces" and implementation
 - utilizing the power of Scala's type system to provide more static guarantees more early (
-  ideally at code typing stage with language server)
+  idealy, at code typing stage with the language server like Metals)
 
-I hope somebody will find those notes as a good starting point for further research 
-and community will be able to develop shared practice in this area.
+I hope that notes can be a starting point for the discussion.
 
 ## Future plans
 
@@ -319,10 +329,10 @@ I personally have the following plans in this area:
 
 - provide specification for CQL queries and type-level CQL schema with compile-time validation
 - provide the implementation based on datastax driver
-- improve and publish small macro library to extract information from traits and generate 
+- improve and publish small macro library to extract information from traits and generate
 some trivial implementations (like pretty printers, dispatchers etc)
 - pindown some Cassandra usage patterns (like implementing caches...)
-- pindown some general design and architecture patterns in modern software development 
+- pindown some general design and architecture patterns in modern software development
 that are repeated over and over again "by simple textual description". I'm talking things like
 event sourcing, CQRS, etc.
 
@@ -343,6 +353,5 @@ If you're interested, please join the [discussion](https://github.com/p-pavel/co
 
 If you're interested in my future work in this area, please consider [becoming a sponsor](https://github.com/sponsors/p-pavel).
 
-Unfortunately, I literally have 40 cents left in money, the only thing for sale beeing my laptop and out of ideas how to monetize this research :)
 
 You can contact me at <pavel@perikov.com>
