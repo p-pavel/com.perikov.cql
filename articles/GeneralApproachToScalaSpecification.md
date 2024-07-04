@@ -315,9 +315,15 @@ Many, actually. In the future I hope to:
 
 ## Conclusion
 
+I touched some common methods for data and behaviour description like BNF and ADTs trying
+to point that they can be combined with API design using the tools available in Scala.
+
 From my experience substantial fraction of work done in software development shops leaves no traces that can be represented as formal artefacts independent of particular implementation.
 
-There're also lots of duplication of essentially
+Frankly speaking often it's hard to understand what the system does at all, reverse engineering
+this knowledge from tons of accidental complexity not related to the essense of the problem.
+
+There're also lots of duplication of mostlu
 the same functionality in different projects, that could be reused if proper abstractions
 were available.
 
@@ -333,7 +339,7 @@ potentially bring significant benefits:
   idealy, at code typing time with the language server like Metals) and with custom error 
   message
 
-I hope the notes aboce can serve as a starting point for the discussion.
+I hope the notes above can serve as a starting point for the discussion.
 
 ## Future plans
 
