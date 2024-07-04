@@ -13,9 +13,8 @@ object ProjectPlugin extends AutoPlugin {
     scalacOptions ++= Seq(
       "-deprecation",
       "-feature",
-      "-unchecked",
       "-Wunused:all",
-      "-Xsource:future-migration",
+      "-source:future-migration",
       "-Yexplicit-nulls",
       "-Ykind-projector",
       "-language:strictEquality",
