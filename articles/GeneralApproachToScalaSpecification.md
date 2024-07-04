@@ -1,6 +1,6 @@
 # General approach to using Scala for specifications
 
-This paper is a draft written in a rush. It's probably full of mistakes and cut corners. I hope I can effectively communicate the main idea now and improve and expand upon it later if there will be interest.
+This paper is a draft written in a rush. It's probably full of mistakes and cut corners. I hope I can communicate the main idea now and improve and expand upon it later if there will be some interest.
 
 ## Motivation
 
@@ -8,11 +8,11 @@ I started thinking about the idea of formalizing the use of programming language
 the possibilities for providing specs not for traditional "mathematical" things but for 
 business software design patterns.
 
-At that time I just played with the idea (reinventing tagless-final in the process :)) and didn't have any practical use for it, on of the reasons Agda being a bit esoteric beast.  
+At that time I just played with the idea (reinventing tagless-final in the process :)) and didn't have any practical use for it, one of the reasons Agda being a bit of esoteric beast.  
 
 Over the years, as I continued working in software development and with the emergence of Scala as a general-purpose language expressive enough to be used as a specification language, I became increasingly obsessed with the idea. Improved syntax and metaprogramming capabilities of Scala 3 made it a perfect candidate for the task.
 
-When looking at what happens in "business software" projects, such as reinventing the wheel repeatedly, oftenl lack of supported documentation, lack of knowledge sharing, and absence of formal specifications, I believe that using Scala as a specification, documentation and 
+When looking at what happens in "business software" projects, such as reinventing the wheel repeatedly, often lack of supported documentation, lack of knowledge sharing, and absence of formal specifications, I believe that using Scala as a specification, documentation and 
 implementation language can potentially provide significant benefits.
 
 Here are some quick philosophical notes on the topic, which I plan to expand upon.
@@ -25,7 +25,7 @@ Or that natural language is the best for specs (everyone can understand it, righ
 
 Or that specifications are of no use at all.
 
-Let's see how complex it is to specify something in Scala compared to BNF that is often mentioned.
+Let's see how complex it would be to specify something in Scala compared to BNF that is often mentioned.
 
 Please recall that BNF is essentially a notation for context-free grammars.
 
@@ -76,7 +76,7 @@ trait Schema:
   def primaryKey(partitionKey: PartitionKey, clusteringColumns: Identifier*): PrimaryKey
 ```
 
-Does it look too complex compared to BNF? I think now.
+Does it look too complex compared to BNF? I think no.
 
 Does it communicate the idea? I think it does. 
 
@@ -86,7 +86,7 @@ If we copy-paste some original documentatin to scaladoc, we could have a complet
 
 Here we have grammar rules represented as methods and grammar symbols represented as abstract types.
 
-We have non-terminals (types that are used as return types) and non-terminals (types that are used as parameters only).
+We have non-terminals (types that are used as return types) and terminals (types that are used as parameters only).
 
 Non-terminals here are `Identifier` and `Type`, complex enough concepts on their own, presumed starting non-teminal is `Table`.
 
@@ -126,13 +126,13 @@ def example1(using g: Grammar): g.Table =
   )
 ```
 
-`example1` can be seen as a [tagles-final](https://okmij.org/ftp/tagless-final/index.html) representation of a table schema info.
+`example1` can be seen as a [tagles-final](https://okmij.org/ftp/tagless-final/index.html) representation of a table schema.
 
-Due to Scala's flexibility there're lots of ways to achieve the same result. We can happily use composition instead of inheritance, for example.
+Thanks to Scala's flexibility there're lots of ways to achieve the same result. We can happily use composition instead of inheritance, for example.
 
-We also completely ignored syntactic sweetness at this point, it can be added later if needed with extension methods etc, we prefer the most straitforward "grammar rules" for now.
+We also completely ignored syntactic sweetness at this point, it can be added later if needed with extension methods or other means. For now we prefer the most straitforward "grammar rules".
 
-What is missing? Let's look again at our `table` and `primaryKey` rules:
+What is missing here? Let's look again at our `table` and `primaryKey` rules:
 
 ```scala
 def table(
@@ -147,11 +147,11 @@ def primaryKey(partitionKey: PartitionKey, clusteringColumns: Identifier*): Prim
 
 Just looking at the definition we can immediatelly tell that they are wrong. To be correct we need some constraints on parameters.
 
-Fore example, sets of identifiers in partition key and clustering columns should be disjoint in `primaryKey` rule.
+For example, sets of identifiers in partition key and clustering columns should be disjoint in `primaryKey` rule.
 
 All identifiers in `primaryKey` should be present in `columns` in `table` rule.
 
-Context-free grammars are not enough to express these constraints. We need something more. Something resembling [attribute grammars](https://en.wikipedia.org/wiki/Attribute_grammar).
+Context-free grammars are not enough to express these constraints. We need something else. Something resembling [attribute grammars](https://en.wikipedia.org/wiki/Attribute_grammar).
 
 We will return to this idea in the following sections.
 
@@ -200,7 +200,7 @@ class Program(val use: (b: MyExecutionBranches) ?=> b.Result ) extends AnyVal
 
 `Program` being a tagless-final value.
 
-I also did some experiments with macros and annotations to annotate methods and automatically generate dispatchers, pretty printers and other mechanical implementations using macro reflection, but this deserves a separate paper.
+I did some experiments with macros and annotations exploring the ways to automatically generate dispatchers, pretty printers and other mechanical implementations using macro reflection, but this deserves a separate paper.
 
 Looking at the situation in this perspective, we can notice the same problem as with
 grammar-based approach: we need more constraints.
@@ -246,10 +246,21 @@ trait WithValidators:
   ```
 
 This way we overcome the limitations of context-free grammars and cartesian types,
-providing additional constraints that depends on the exact values of the parameters (in theory).
+providing additional constraints that depends on the exact values of the parameters (there exact
+types really). The types of our grammar symbols can be refined to be arbitrary precise,
+encoding all the information of values in types.
+
+For example, `Table` can be refined so it's value's type will looke something like this:
+
+```scala
+val table: TableObj["ks", "name", (("id", "int), ("name", "text"), ("age", "int")), (("id"), ("name", "age"))]
+```
+
+the values itself may contain no information at all, because all this info is needed in compile
+time only and can be extracted with clever type-level or macro programming.
   
-please note that here we don't provide any `given` they can be provided in separate 
-hierarchy. "Validators" themselves can be moved to separate hierarchy, too, parameterising context-free part with validator part.
+Please note that we don't provide any `given` instances, they can be provided in a separate
+hierarchy. "Validators" themselves can be moved to separate hierarchy too, parameterising context-free part with validator part.
 
 There's an important use case for this validator approach: compile-time checks
 
@@ -285,26 +296,26 @@ def example3(c: CompiletimeIdentifiers) =
   val i2 = identifier("1a") // fails in runtime
 ```
 
-## Talk abount refinement
+## Notes about refinement
 
 The flexibility of traits opens many possibilities for refining both the specification
 and implementation. Starting from the completely abstract types we can further refine them with
-type bounds, provide subtyping dependencies, and type level parameters etc.
+type bounds, providing subtyping dependencies, and type level parameters.
 
-This way we can provide "specifications for specifications" and pass the work to others to implement/specify/refine parts of the problem.
+This way we can provide "specifications for specifications" and share the work with collegues to implement/specify/refine parts of the problem.
 
 ## Topics not covered
 
-Lots, actually. In the future I hope to:
+Many, actually. In the future I hope to:
 
 - provide the complete CQL spec as an example along with compile-time checked schema definition
 - talk about the role of tagless-final and interplay with specs described above
 - talk more about the role of type bounds and their relation to validators
-- **phantom types**. Database schema doesn't need to present in runtime at all and can be completely put into typelevel.
+- **phantom types**. Database schema doesn't need to be present at runtime at all and can be completely encoded at typelevel.
 
 ## Conclusion
 
-From my experience lots of work made in software development leaves no traces that can be represented as formal artefacts independent of particular implementation.
+From my experience substantial fraction of work done in software development shops leaves no traces that can be represented as formal artefacts independent of particular implementation.
 
 There're also lots of duplication of essentially
 the same functionality in different projects, that could be reused if proper abstractions
@@ -316,12 +327,13 @@ potentially bring significant benefits:
 - consise, complete, compiler checkable documentation
 - knowledge and practices sharing
 - less errors in implementation
-- potential to leverage term deriving
+- potential to leverage term deriving massively
 - ability to delegate the work on particular parts of both "specs/interafaces" and implementation
 - utilizing the power of Scala's type system to provide more static guarantees more early (
-  idealy, at code typing stage with the language server like Metals)
+  idealy, at code typing time with the language server like Metals) and with custom error 
+  message
 
-I hope that notes can be a starting point for the discussion.
+I hope the notes aboce can serve as a starting point for the discussion.
 
 ## Future plans
 
@@ -333,29 +345,23 @@ I personally have the following plans in this area:
 some trivial implementations (like pretty printers, dispatchers etc). Some code fragments (not 
 put into the project yet can be found [here](https://github.com/p-pavel/osgi-scala-maven/tree/main/modelling/macros/src/main/scala/com/perikov/cassandra/macros), along with [some experiments on
 describing Cassandra native protocols](https://github.com/p-pavel/osgi-scala-maven/tree/main/modelling/cassandra/src/main/scala/com/perikov/cassandra/protocol/grammar)
-- capture some Cassandra usage patterns (like implementing caches...)
-- captue some general design and architecture patterns in modern software development
-that are repeated over and over again "by simple textual description". I'm talking things like
-event sourcing, CQRS, etc.
+- capture some Cassandra usage patterns (like implementing caches)
+- capture some general design and architecture patterns in modern software development
+that are repeated over and over again. I'm talking abot things like
+event sourcing, CQRS, etc. Ideally, we could have a specification in Scala that can be
+refined for particular project and then implemented by extending resulting specification trait
 
-If somebody interested in this area, I would be happy to collaborate, please contact me `pavel@perikov.com`
-
-My other areas of interest include OSGi and Scala, trying to do something with microservices
-catastrophe, provide tool to automate all aspects of targeting OSGi containers for deployment,
-tools to automate bringing existing Scala projects to OSGi, etc.
-
-In some distant future I also very interested in researching the possibility of IDE
-that takes focus from "library dependency management" to what is really needed: package dependency management.
+If somebody interested in this area, I would be happy to collaborate, please contact me `pavel@perikov.com` or join the [discussions](https://github.com/p-pavel/com.perikov.cql/discussions/2)
 
 ## About the author
 
-I started working in software development in 1994. Since I worked professionally with 
-languages like C++/C, Java, Scala, Smalltalk, Python, Haskell, Agda, C# etc, in roles 
-from software developer to the lead for several groups of 80+ developer in total, with systems ranging from distributed realtime simulation to banking software.
+I started working in software development in 1994. Since then I worked professionally with 
+languages like C++/C, Java, Scala, Smalltalk, Python, Haskell, Agda, C# and more
+
+I worked in roles ranging from software developer to researcher and department head.
 
 If you're interested, please join the [discussion](https://github.com/p-pavel/com.perikov.cql/discussions/2)
 
 If you're interested in my future work in this area, please consider [becoming a sponsor](https://github.com/sponsors/p-pavel).
-
 
 You can contact me at <pavel@perikov.com>
